@@ -7,6 +7,9 @@
 ;; Autocomplete paired brackets
 (electric-pair-mode 1)
 
+;; Global column number mode - shows the position of the cursor on the line
+(setq column-number-mode t)
+
 ;; Always line numbers
 (global-linum-mode 1)
 
@@ -17,6 +20,7 @@
 ;; Jedi - autocompletion and tooltips
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:complete-on-dot t)
+(add-hook 'python-mode-hook 'flycheck-mode)
 
 
 ;; ORG-TREE-SLIDE MINOR ORG MODE
@@ -32,13 +36,14 @@
 (require 'ox-html5presentation)
 
 ;; MAGIT - GIT INSIDE EMACS
-(global-set-key (kbd "C-c g") 'magit-status)
+(global-set-key (kbd "C-x g") 'magit-status)
 
 ;; Start RSS reader
 (global-set-key (kbd "<f9>") 'newsticker-show-news)
 
 
 ;; Spelling ISPELL
+;; REQUIRED: Aspell installed from package manager
 ;; Hooks for when spell check should be activated:
 (add-hook 'latex-mode-hook 'flyspell-mode)
 (add-hook 'text-mode-hook 'flyspell-mode)
@@ -59,7 +64,18 @@
 (add-hook 'js-mode-hook 'js2-minor-mode)
 (add-hook 'js2-mode-hook 'ac-js2-mode)
 
-;; Things edited in M-x-cusomize
+;; Eshell
+(defun eshell-clear-buffer ()
+  "Clear terminal"
+  (interactive)
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (eshell-send-input)))
+(add-hook 'eshell-mode-hook
+      '(lambda()
+          (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
+
+;; Things edited in M-x-customize
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -70,6 +86,7 @@
  '(ansi-color-names-vector
    ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
  '(custom-enabled-themes (quote (deeper-blue)))
+ '(inhibit-startup-screen t)
  '(menu-bar-mode nil)
  '(newsticker-url-list
    (quote
@@ -88,3 +105,4 @@
  ;; If there is more than one, they won't work right.
  )
 (put 'narrow-to-region 'disabled nil)
+(put 'erase-buffer 'disabled nil)
