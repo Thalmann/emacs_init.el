@@ -1,8 +1,11 @@
+;; If multiple dirs are recursively only prompt once not once for each dir
+(setq dired-recursive-deletes 'always)
+
 ;;MELPA
-(require 'package) ;; You might already have this line
+(require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
-(package-initialize) ;; You might already have this line
+(package-initialize)
 
 ;; Autocomplete paired brackets
 (electric-pair-mode 1)
@@ -17,23 +20,9 @@
 (add-to-list 'load-path "~/Documents/.emacs")
 
 ;; PYTHON STUFF
-;; Jedi - autocompletion and tooltips
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:complete-on-dot t)
-(add-hook 'python-mode-hook 'flycheck-mode)
+;; Elpy
+(add-hook 'python-mode-hook 'elpy-mode)
 
-
-;; ORG-TREE-SLIDE MINOR ORG MODE
-;;minor mode for Org mode that makes it possible to generate a presentaiton
-(require 'org-tree-slide)
-
-;; Shortcuts for orgtreeslide presntations
-(global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-(global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
-
-;; ORG HTML PRESENTATION
-(require 'org-export-as-s5)
-(require 'ox-html5presentation)
 
 ;; MAGIT - GIT INSIDE EMACS
 (global-set-key (kbd "C-x g") 'magit-status)
@@ -59,10 +48,6 @@
     
 (global-set-key (kbd "<f7>")   'fd-switch-dictionary)
 
-
-;; Javascript environment
-(add-hook 'js-mode-hook 'js2-minor-mode)
-(add-hook 'js2-mode-hook 'ac-js2-mode)
 
 ;; Eshell
 (defun eshell-clear-buffer ()
@@ -97,6 +82,7 @@
  '(newsticker-url-list-defaults
    (quote
     (("Debian Security Advisories - Long format" "http://www.debian.org/security/dsa-long.en.rdf"))))
+ '(package-selected-packages (quote (elpy jedi magit)))
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
