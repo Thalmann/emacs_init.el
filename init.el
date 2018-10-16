@@ -1,3 +1,7 @@
+;; Emacs as server
+;; So we can use emacsclient to send it to the emacs server
+(server-start)
+
 (require 'cl)
 ;; Start in fullscreen:
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -26,7 +30,12 @@
 ;; PYTHON STUFF
 ;; Elpy
 (add-hook 'python-mode-hook 'elpy-mode)
-
+;; debug
+(defun pdb-set-trace ()
+  ;; http://www.emacswiki.org/emacs/InteractiveFunction
+  (interactive)
+  (insert "import pdb; pdb.set_trace()"))
+(global-set-key [(control ?c) (?d)] 'pdb-set-trace)
 
 ;; MAGIT - GIT INSIDE EMACS
 (global-set-key (kbd "C-x g") 'magit-status)
@@ -93,6 +102,8 @@
  '(display-time-24hr-format t)
  '(display-time-day-and-date t)
  '(display-time-mode t)
+ '(github-notifier-token "42a48a080280aa7da863adb4e7da48556721cbc5")
+ '(indent-tabs-mode nil)
  '(inhibit-startup-screen t)
  '(menu-bar-mode nil)
  '(newsticker-url-list
@@ -104,7 +115,9 @@
  '(newsticker-url-list-defaults
    (quote
     (("Debian Security Advisories - Long format" "http://www.debian.org/security/dsa-long.en.rdf"))))
- '(package-selected-packages (quote (elpy jedi magit)))
+ '(package-selected-packages
+   (quote
+    (rjsx-mode github-notifier flymake-jslint use-package wakatime-mode elpy jedi magit)))
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -131,67 +144,68 @@
 (epa-file-enable)
 
 ;; Email client setup
-(require 'mu4e)
+;; (require 'mu4e)
 
-;; default
-(setq mu4e-maildir (expand-file-name "~/Maildir"))
+;; ;; default
+;; (setq mu4e-maildir (expand-file-name "~/Maildir"))
 
-(setq mu4e-drafts-folder "/[Gmail].Drafts")
-(setq mu4e-sent-folder   "/[Gmail].Sent Mail")
-(setq mu4e-trash-folder  "/[Gmail].Trash")
+;; (setq mu4e-drafts-folder "/[Gmail].Drafts")
+;; (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+;; (setq mu4e-trash-folder  "/[Gmail].Trash")
 
-;; don't save message to Sent Messages, GMail/IMAP will take care of this
-(setq mu4e-sent-messages-behavior 'delete)
+;; ;; don't save message to Sent Messages, GMail/IMAP will take care of this
+;; (setq mu4e-sent-messages-behavior 'delete)
 
-;; setup some handy shortcuts
-(setq mu4e-maildir-shortcuts
-      '(("/INBOX"             . ?i)
-        ("/[Gmail].Sent Mail" . ?s)
-        ("/[Gmail].Trash"     . ?t)))
+;; ;; setup some handy shortcuts
+;; (setq mu4e-maildir-shortcuts
+;;       '(("/INBOX"             . ?i)
+;;         ("/[Gmail].Sent Mail" . ?s)
+;;         ("/[Gmail].Trash"     . ?t)))
 
-;; allow for updating mail using 'U' in the main view:
-(setq mu4e-get-mail-command "offlineimap")
+;; ;; allow for updating mail using 'U' in the main view:
+;; (setq mu4e-get-mail-command "offlineimap"
+;;       mu4e-update-interval 300)
 
-;; something about ourselves
-;; I don't use a signature...
-(setq
- user-mail-address "bt@intempus.dk"
- user-full-name  "Bruno Thalmann"
- ;; message-signature
- ;;  (concat
- ;;    "Foo X. Bar\n"
- ;;    "http://www.example.com\n")
-)
+;; ;; something about ourselves
+;; ;; I don't use a signature...
+;; (setq
+;;  user-mail-address "bt@intempus.dk"
+;;  user-full-name  "Bruno Thalmann"
+;;  ;; message-signature
+;;  ;;  (concat
+;;  ;;    "Foo X. Bar\n"
+;;  ;;    "http://www.example.com\n")
+;; )
 
-;; sending mail -- replace USERNAME with your gmail username
-;; also, make sure the gnutls command line utils are installed
-;; package 'gnutls-bin' in Debian/Ubuntu, 'gnutls' in Archlinux.
+;; ;; sending mail -- replace USERNAME with your gmail username
+;; ;; also, make sure the gnutls command line utils are installed
+;; ;; package 'gnutls-bin' in Debian/Ubuntu, 'gnutls' in Archlinux.
 
-(require 'smtpmail)
+;; (require 'smtpmail)
 
-(setq message-send-mail-function 'smtpmail-send-it
-      starttls-use-gnutls t
-      smtpmail-starttls-credentials
-      '(("smtp.gmail.com" 587 nil nil))
-      smtpmail-auth-credentials
-      (expand-file-name "~/.authinfo.gpg")
-      smtpmail-default-smtp-server "smtp.gmail.com"
-      smtpmail-smtp-server "smtp.gmail.com"
-      smtpmail-smtp-service 587
-      smtpmail-debug-info t)
+;; (setq message-send-mail-function 'smtpmail-send-it
+;;       starttls-use-gnutls t
+;;       smtpmail-starttls-credentials
+;;       '(("smtp.gmail.com" 587 nil nil))
+;;       smtpmail-auth-credentials
+;;       (expand-file-name "~/.authinfo.gpg")
+;;       smtpmail-default-smtp-server "smtp.gmail.com"
+;;       smtpmail-smtp-server "smtp.gmail.com"
+;;       smtpmail-smtp-service 587
+;;       smtpmail-debug-info t)
 
-;; mu4e customs
-;; Open mail global key
-(global-set-key (kbd "C-x M") 'mu4e)
+;; ;; mu4e customs
+;; ;; Open mail global key
+;; (global-set-key (kbd "C-x M") 'mu4e)
 
-;; When openeing an attachment based on the fileextension i provide
-;; some suggestions for directories to save them in:
-(setq mu4e-attachment-dir
-  (lambda (fname mtype)
-    (cond
-     ;; .txt files often are review files:
-     ((and fname (string-match "\\.txt$" fname))  "~/reviews")
-     (t "~/Downloads")))) ;; everything else
+;; ;; When openeing an attachment based on the fileextension i provide
+;; ;; some suggestions for directories to save them in:
+;; (setq mu4e-attachment-dir
+;;   (lambda (fname mtype)
+;;     (cond
+;;      ;; .txt files often are review files:
+;;      ((and fname (string-match "\\.txt$" fname))  "~/reviews")
+;;      (t "~/Downloads")))) ;; everything else
 
 ;; Save attachment and then open it
 ;; (global-set-key (kbd "C-c s r") (lambda () (interactive) (mu4e-view-save-attachment) (mu4e-view-attachment-action)))
@@ -220,6 +234,10 @@
 ;; Time display format
 ;; Set system load average to nil
 (setq display-time-default-load-average nil)
+
+;; Wakatime timetracking
+;; (global-wakatime-mode)
+;; (custom-set-variables '(wakatime-api-key "d3f8c949-f5cb-433a-83ce-108d2bfa73e8"))
 
 ;; No more tabs!!! Disable tabs
 (setq-default indent-tabs-mode nil)
@@ -253,3 +271,21 @@ It is assumed that the author has only one or two names."
         (setf (car (car args)) author-abbr))
       (car args))                       ;'(AUTHOR-ABBR DATE)
     (advice-add 'magit-log-format-margin :filter-args #'modi/magit-log--abbreviate-author)))
+
+;; JS syntax checker
+(add-hook 'js-mode-hook 'flymake-jslint-load)
+
+;; Github notifications in the statusbar
+(github-notifier-mode 1)
+
+(defcustom elpy-rpc-ignored-buffer-size 102400
+  "Size for a source buffer over which Elpy completion will not work.
+To provide completion, Elpy's backends have to parse the whole
+file every time. For very large files, this is slow, and can make
+Emacs laggy. Elpy will simply not work on buffers larger than
+this to prevent this from happening."
+  :type 'integer
+  :safe #'integerp
+  :group 'elpy)
+
+(setq jedi:complete-on-dot t)
